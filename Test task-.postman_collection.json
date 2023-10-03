@@ -1,0 +1,188 @@
+{
+	"info": {
+		"_postman_id": "5939e95e-f88b-4149-879f-6a493eb04fbd",
+		"name": "https://petstore.swagger.io/",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "23495792"
+	},
+	"item": [
+		{
+			"name": "Create a new pet",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							" function getRandomInt(max) {\r",
+							"  return Math.floor(Math.random() * max);\r",
+							"}\r",
+							"\r",
+							"let rn = getRandomInt(1000);\r",
+							"\r",
+							"pm.environment.set('id', rn);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\": {{id}},\r\n  \"category\": {\r\n    \"id\": 0,\r\n    \"name\": \"string\"\r\n  },\r\n  \"name\": \"Toshik\",\r\n  \"photoUrls\": [\r\n    \"string\"\r\n  ],\r\n  \"tags\": [\r\n    {\r\n      \"id\": 0,\r\n      \"name\": \"string\"\r\n    }\r\n  ],\r\n  \"status\": \"available\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://{{baseUrl}}/pet"
+			},
+			"response": []
+		},
+		{
+			"name": "Get created pet",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.sendRequest({\r",
+							"        url: \"https://\" + pm.environment.get('baseUrl') + \"/pet\", \r",
+							"        method: 'PUT',\r",
+							"        header: {\r",
+							"            'Accept': '*/*',\r",
+							"            'Content-Type': 'application/json',\r",
+							"        },\r",
+							"        body: {\r",
+							"            mode: \"raw\",\r",
+							"            raw: JSON.stringify({ ...pm.response.json(), status: \"sold\"})\r",
+							"        }\r",
+							"    },\r",
+							"    function (err, response) {\r",
+							"        console.log(response);\r",
+							"    });\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "https://{{baseUrl}}/pet/{{id}}"
+			},
+			"response": []
+		},
+		{
+			"name": "Check changed pet",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"let schema= { \"type\": \"object\",\r",
+							"  \"properties\": {\r",
+							"    \"id\": {\r",
+							"      \"type\": \"number\"\r",
+							"    },\r",
+							"    \"category\": {\r",
+							"      \"type\": \"object\",\r",
+							"      \"properties\": {\r",
+							"        \"id\": {\r",
+							"          \"type\": \"number\"\r",
+							"        },\r",
+							"        \"name\": {\r",
+							"          \"type\": \"string\"\r",
+							"        }\r",
+							"      },\r",
+							"      \"required\": [\r",
+							"        \"id\",\r",
+							"        \"name\"\r",
+							"      ]\r",
+							"    },\r",
+							"    \"name\": {\r",
+							"      \"type\": \"string\"\r",
+							"    },\r",
+							"    \"photoUrls\": {\r",
+							"      \"type\": \"array\",\r",
+							"      \"items\": {\r",
+							"        \"type\": \"string\"\r",
+							"      }\r",
+							"    },\r",
+							"    \"tags\": {\r",
+							"      \"type\": \"array\",\r",
+							"      \"items\": {\r",
+							"        \"type\": \"object\",\r",
+							"        \"properties\": {\r",
+							"          \"id\": {\r",
+							"            \"type\": \"number\"\r",
+							"          },\r",
+							"          \"name\": {\r",
+							"            \"type\": \"string\"\r",
+							"          }\r",
+							"        },\r",
+							"        \"required\": [\r",
+							"          \"id\",\r",
+							"          \"name\"\r",
+							"        ]\r",
+							"      }\r",
+							"    },\r",
+							"    \"status\": {\r",
+							"      \"status\": {\r",
+							"      \"type\": \"string\",\r",
+							"      \"enum\": [\"available\",\"sold\",\"pending\"]                   \r",
+							"    }\r",
+							"    }\r",
+							"  },\r",
+							"  \"required\": [\r",
+							"    \"name\",\r",
+							"    \"photoUrls\",\r",
+							"  ]};\r",
+							"\r",
+							"  pm.test(\"Schema is valid\", function() {    \r",
+							"    pm.response.to.have.jsonSchema(schema)\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Headers is valid\", function() {\r",
+							"pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');\r",
+							"pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive')});\r",
+							"\r",
+							"pm.test(\"Animal is sold\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include('\"sold\"');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "https://{{baseUrl}}/pet/{{id}}"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": ""
+		}
+	]
+}
